@@ -19,6 +19,7 @@ const defaults = {
   fov: (60).toRad(),
   near: 0.1,
   far: 1e2,
+  invertMatrix: true,
 }
 
 // camera state and interaction
@@ -36,6 +37,8 @@ class Camera {
 
     this.worldUp = vec3.fromValues(0, 1, 0);
     this.updatePosition();
+
+    this.invertMatrix = defaults.invertMatrix;
   }
 
   get viewDir() {
@@ -55,7 +58,7 @@ class Camera {
     const aspect = canvas.clientWidth / canvas.clientHeight;
     const proj = mat4.perspective(this.fov, aspect, this.near, this.far)
     const view = mat4.lookAt(this.position, this.target, this.worldUp);
-    uni.values.invMatrix.set(mat4.invert(mat4.multiply(proj, view)));
+    if (this.invertMatrix) uni.values.invMatrix.set(mat4.invert(mat4.multiply(proj, view)));
 
     uni.values.cameraPos.set(this.position);
   }
@@ -126,6 +129,33 @@ class Camera {
       this.target = vec3.clone(defaults.target);
     }
     this.updatePosition();
+  }
+
+  handleInputs(speedMultiplier) {
+    if (keyOrbit) {
+      const speed = KEY_ROT_SPEED * speedMultiplier;
+      this.orbit(
+        (keyState.orbit.left - keyState.orbit.right) * speed,
+        (keyState.orbit.up - keyState.orbit.down) * speed
+      );
+    }
+    if (keyPan) {
+      const speed = KEY_PAN_SPEED * speedMultiplier;
+      this.pan(
+        (keyState.pan.left - keyState.pan.right) * speed,
+        (keyState.pan.up - keyState.pan.down) * speed,
+        (keyState.pan.forward - keyState.pan.backward) * speed
+      );
+    }
+    if (keyZoom) {
+      this.zoom((keyState.zoom.out - keyState.zoom.in) * KEY_ZOOM_SPEED * speedMultiplier);
+    }
+    if (keyFOV) {
+      this.adjFOV((keyState.zoom.out - keyState.zoom.in) * KEY_FOV_SPEED * speedMultiplier);
+    }
+    if (keyFOVWithoutZoom) {
+      this.adjFOVWithoutZoom((keyState.zoom.out - keyState.zoom.in) * KEY_FOV_SPEED * speedMultiplier);
+    }
   }
 }
 

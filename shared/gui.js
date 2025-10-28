@@ -248,7 +248,7 @@ class GUI {
    * @param {Object} visibilityMap Object of format `"option": ["id1", "id2"]` of input ids to display when the option is selected
    * @param {Function} onChange Callback function of the currently selected value to run on user input
    */
-  addDropdown(id, label, options = [], group = "parent", visibilityMap = {}, onChange) {
+  addDropdown(id, label, options = [], group = "parent", visibilityMap, onChange) {
     const container = document.createElement("div");
     container.id = `${id}-container`;
 
@@ -269,30 +269,35 @@ class GUI {
     container.appendChild(select);
     container.appendChild(labelEl);
 
-    const firstInput = document.getElementById(`${Object.entries(visibilityMap)[0][1][0]}-container`);
-    this.groups[group].insertBefore(container, firstInput);
-    this.io[id] = select;
+    if (visibilityMap) {
+      const firstInput = document.getElementById(`${Object.entries(visibilityMap)[0][1][0]}-container`);
+      this.groups[group].insertBefore(container, firstInput);
+      this.io[id] = select;
 
-    // Build reverse visibility map: inputId → [values]
-    const inputMap = {};
-    Object.entries(visibilityMap).forEach(([val, ids]) => {
-      ids.forEach(inputId => {
-        if (!inputMap[inputId]) inputMap[inputId] = [];
-        inputMap[inputId].push(val);
+      // Build reverse visibility map: inputId → [values]
+      const inputMap = {};
+      Object.entries(visibilityMap).forEach(([val, ids]) => {
+        ids.forEach(inputId => {
+          if (!inputMap[inputId]) inputMap[inputId] = [];
+          inputMap[inputId].push(val);
+        });
       });
-    });
 
-    const updateVisibility = () => {
-      const selected = select.value;
-      Object.entries(inputMap).forEach(([inputId, allowedVals]) => {
-        const el = document.getElementById(`${inputId}-container`);
-        if (el) el.style.display = allowedVals.includes(selected) ? "" : "none";
-      });
-      if (onChange) onChange(selected);
-    };
+      const updateVisibility = () => {
+        const selected = select.value;
+        Object.entries(inputMap).forEach(([inputId, allowedVals]) => {
+          const el = document.getElementById(`${inputId}-container`);
+          if (el) el.style.display = allowedVals.includes(selected) ? "" : "none";
+        });
+        if (onChange) onChange(selected);
+      };
 
-    select.addEventListener("change", updateVisibility);
-    updateVisibility(); // initialize
+      select.addEventListener("change", updateVisibility);
+      updateVisibility(); // initialize
+    } else {
+      this.groups[group].appendChild(container);
+      select.addEventListener("change", () => onChange(select.value));
+    }
   }
 
   /**

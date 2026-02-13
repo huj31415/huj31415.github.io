@@ -1,3 +1,23 @@
+/**
+ * Clamps a number between between specified values
+ * @param {Number} min Lower bound to clamp
+ * @param {Number} max Upper bound to clamp
+ * @returns Original number clamped between min and max
+ */
+const clamp = function (x, min, max) { return Math.max(min, Math.min(max, x)) };
+
+/**
+ * Converts degrees to radians
+ * @returns Degree value in radians
+ */
+const toRad = function (x) { return x * Math.PI / 180; }
+
+/**
+ * Converts radians to degrees
+ * @returns Radian value in degrees
+ */
+const toDeg = function (x) { return x / Math.PI * 180; }
+
 const ROT_SPEED = 0.005;
 const PAN_SPEED = 0.001;
 const ZOOM_SPEED = 0.0005;
@@ -8,15 +28,15 @@ const KEY_PAN_SPEED = 5 / 15;
 const KEY_ZOOM_SPEED = 0.01 / 15;
 const KEY_FOV_SPEED = 0.005 / 15;
 
-const minFOV = (1).toRad(), maxFOV = (120).toRad();
+const minFOV = toRad(1), maxFOV = toRad(120);
 
 const defaults = {
-  target: vec3.scale(simulationDomainNorm, 0.5),
+  target: vec3.fromValues(0,0,0),
   distance: 1,
   position: vec3.create(),
   azimuth: 0,
   elevation: 0,
-  fov: (60).toRad(),
+  fov: toRad(60),
   near: 0.1,
   far: 1e2,
   invertMatrix: true,
@@ -71,12 +91,12 @@ class Camera {
 
     this.updateMatrix();
 
-    gui.io.camFOV(this.fov.toDeg().toFixed(2));
+    gui.io.camFOV(toDeg(this.fov).toFixed(2));
     gui.io.camDist(this.distance.toFixed(2));
     gui.io.camTarget(vec3.toString(this.target));
     gui.io.camPos(vec3.toString(this.position));
-    gui.io.camAlt(this.elevation.toDeg().toFixed(2));
-    gui.io.camAz(this.azimuth.toDeg().toFixed(2));
+    gui.io.camAlt(toDeg(this.elevation).toFixed(2));
+    gui.io.camAz(toDeg(this.azimuth).toFixed(2));
   }
 
   orbit(dx, dy) {
@@ -84,7 +104,7 @@ class Camera {
     this.elevation += dy * ROT_SPEED;
 
     const limit = Math.PI / 2 - 0.01;
-    this.elevation = this.elevation.clamp(-limit, limit);
+    this.elevation = clamp(this.elevation, -limit, limit);
     this.updatePosition();
   }
 
@@ -104,18 +124,18 @@ class Camera {
   }
 
   zoom(delta) {
-    this.distance = ((delta + 1) * this.distance).clamp(this.near, this.far);
+    this.distance = clamp(((delta + 1) * this.distance), this.near, this.far);
     this.updatePosition();
   }
 
   adjFOV(delta) {
-    this.fov = (this.fov + delta).clamp(minFOV, maxFOV);
+    this.fov = clamp((this.fov + delta), minFOV, maxFOV);
     this.updatePosition();
   }
 
   adjFOVWithoutZoom(delta) {
     const initial = Math.tan(this.fov / 2) * this.distance;
-    this.fov = (this.fov + delta).clamp(minFOV, maxFOV);
+    this.fov = clamp((this.fov + delta), minFOV, maxFOV);
     this.distance = initial / Math.tan(this.fov / 2);
     this.updatePosition();
   }

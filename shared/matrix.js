@@ -95,6 +95,93 @@ class vec3 {
   }
 }
 
+class vec4 {
+  // create a zero vector
+  static create() {
+    return new Float32Array(4);
+  }
+
+  // create a vector from values
+  static fromValues(x, y, z, w) {
+    const out = new Float32Array(4);
+    out[0] = x;
+    out[1] = y;
+    out[2] = z;
+    out[3] = w;
+    return out;
+  }
+
+  // out = a + b
+  static add(a, b, out = this.create()) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+    out[3] = a[3] + b[3];
+    return out;
+  }
+
+  // out = a - b
+  static subtract(a, b, out = this.create()) {
+    out[0] = a[0] - b[0];
+    out[1] = a[1] - b[1];
+    out[2] = a[2] - b[2];
+    out[3] = a[3] - b[3];
+    return out;
+  }
+
+  // out = a * scalar
+  static scale(a, scalar, out = this.create()) {
+    out[0] = a[0] * scalar;
+    out[1] = a[1] * scalar;
+    out[2] = a[2] * scalar;
+    out[3] = a[3] * scalar;
+    return out;
+  }
+
+  // out = a + (b * scalar)
+  static scaleAndAdd(a, b, scalar, out = this.create()) {
+    out[0] = a[0] + b[0] * scalar;
+    out[1] = a[1] + b[1] * scalar;
+    out[2] = a[2] + b[2] * scalar;
+    out[3] = a[3] + b[3] * scalar;
+    return out;
+  }
+
+  // compute dot product of a and b
+  static dot(a, b) {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+  }
+
+  static length(a) {
+    return Math.hypot(...a);
+  }
+
+  // normalize vector a, store in out
+  static normalize(a, out = this.create()) {
+    let len = this.length(a);
+    if (len > 0) {
+      out = this.scale(a, 1 / len);
+    }
+    return out;
+  }
+
+  static clone(a, out = this.create()) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    return out;
+  }
+
+  static toString(a) {
+    return Array.from(a).map((i) => parseFloat(i).toFixed(2));
+  }
+
+  static equals(a, b) {
+    return a.every((e, i) => e === b[i]);
+  }
+}
+
 class mat4 {
   // create identity matrix
   static create() {
@@ -277,4 +364,82 @@ class mat4 {
     out[11] = a[3] * s + a[11] * c;
     return out;
   }
+
+  static transformVec4(m, v, out = vec4.create()) {
+    let [x, y, z, w] = v;
+    out[0] = m[0] * x + m[4] * y + m[8] * z + m[12] * w;
+    out[1] = m[1] * x + m[5] * y + m[9] * z + m[13] * w;
+    out[2] = m[2] * x + m[6] * y + m[10] * z + m[14] * w;
+    out[3] = m[3] * x + m[7] * y + m[11] * z + m[15] * w;
+    
+    return out;
+  }
+
+  static fromScaling(v, out = this.create()) {
+    out[0] = v[0];
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[5] = v[1];
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[10] = v[2];
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+    return out;
+  }
+
+  static translate(a, v, out = this.create()) {
+    let [x, y, z] = v;
+    let a00, a01, a02, a03;
+    let a10, a11, a12, a13;
+    let a20, a21, a22, a23;
+
+    if (a === out) {
+      out[12] = a[0] * x + a[4] * y + a[8] * z + a[12];
+      out[13] = a[1] * x + a[5] * y + a[9] * z + a[13];
+      out[14] = a[2] * x + a[6] * y + a[10] * z + a[14];
+      out[15] = a[3] * x + a[7] * y + a[11] * z + a[15];
+    } else {
+      a00 = a[0];
+      a01 = a[1];
+      a02 = a[2];
+      a03 = a[3];
+      a10 = a[4];
+      a11 = a[5];
+      a12 = a[6];
+      a13 = a[7];
+      a20 = a[8];
+      a21 = a[9];
+      a22 = a[10];
+      a23 = a[11];
+
+      out[0] = a00;
+      out[1] = a01;
+      out[2] = a02;
+      out[3] = a03;
+      out[4] = a10;
+      out[5] = a11;
+      out[6] = a12;
+      out[7] = a13;
+      out[8] = a20;
+      out[9] = a21;
+      out[10] = a22;
+      out[11] = a23;
+
+      out[12] = a00 * x + a10 * y + a20 * z + a[12];
+      out[13] = a01 * x + a11 * y + a21 * z + a[13];
+      out[14] = a02 * x + a12 * y + a22 * z + a[14];
+      out[15] = a03 * x + a13 * y + a23 * z + a[15];
+    }
+
+    return out;
+  }
+
 }

@@ -258,6 +258,7 @@ class GUI {
 
     const select = document.createElement("select");
     select.id = id;
+    this.io[id] = select;
 
     options.forEach(opt => {
       const option = document.createElement("option");
@@ -272,7 +273,6 @@ class GUI {
     if (visibilityMap) {
       const firstInput = document.getElementById(`${Object.entries(visibilityMap)[0][1][0]}-container`);
       this.groups[group].insertBefore(container, firstInput);
-      this.io[id] = select;
 
       // Build reverse visibility map: inputId → [values]
       const inputMap = {};

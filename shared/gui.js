@@ -2,6 +2,7 @@
 class GUI {
   io = {};
   groups = {};
+  visibilityFunctions = [];
 
   /**
    * Creates a GUI object
@@ -293,7 +294,8 @@ class GUI {
       };
 
       select.addEventListener("change", updateVisibility);
-      updateVisibility(); // initialize
+      this.visibilityFunctions.push(updateVisibility);
+      updateVisibility();
     } else {
       this.groups[group].appendChild(container);
       select.addEventListener("change", () => onChange(select.value));
@@ -386,6 +388,11 @@ class GUI {
     };
 
     // Initialize visibility state
+    this.visibilityFunctions.push(() => updateVisibility(defaultValue));
     updateVisibility(defaultValue);
+  }
+
+  updateAllVisibility() {
+    this.visibilityFunctions.forEach(func => func());
   }
 }

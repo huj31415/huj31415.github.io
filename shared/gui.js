@@ -237,7 +237,7 @@ class GUI {
 
     this.io[id] = input;
 
-    if (onclick != null) input.addEventListener("click", () => onclick(input.checked));
+    if (onclick) input.addEventListener("click", () => onclick(input.checked));
   }
 
   /**
@@ -392,6 +392,40 @@ class GUI {
     updateVisibility(defaultValue);
   }
 
+  /**
+   * Adds a file input
+   * @param {String} id id of the input
+   * @param {String} label Label
+   * @param {String} group id of the group to add this under
+   * @param {Function} onChange Callback function of the selected file to run on user input
+   */
+  addFileInput(id, label, group = "parent", onChange) {
+    const container = document.createElement("div");
+    container.id = `${id}-container`;
+    
+    const input = document.createElement("input");
+    input.type = "file";
+    input.id = id;
+
+    const labelEl = document.createElement("label");
+    labelEl.setAttribute("for", id);
+    labelEl.innerText = label;
+
+    container.appendChild(input);
+    container.appendChild(labelEl);
+
+    this.groups[group].appendChild(container);
+
+    this.io[id] = input;
+    if (onChange) input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (file) onChange(file);
+    });
+  }
+
+  /**
+   * Calls all visibility functions to update the display of inputs based on the current selected options for initialization
+   */
   updateAllVisibility() {
     this.visibilityFunctions.forEach(func => func());
   }

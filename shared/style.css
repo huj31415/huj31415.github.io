@@ -32,6 +32,11 @@ input:not([type="radio"]) {
   &[type="range"] {
     width: 140px;
   }
+
+  &[type="file"] {
+    width: 140px;
+    height: auto;
+  }
 }
 
 label {

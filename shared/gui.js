@@ -20,7 +20,7 @@ class GUI {
     toggleBtn.innerText = ">";
 
     const titleElem = document.createElement("h2");
-    titleElem.innerText = title;
+    titleElem.innerHTML = title;
     parentDiv.appendChild(titleElem);
 
     if (appendAfter) {
@@ -53,7 +53,7 @@ class GUI {
 
     if (title) {
       const header = document.createElement("b");
-      header.innerText = title;
+      header.innerHTML = title;
       this.groups[group].appendChild(header);
       header.addEventListener("click", () => {
         newGroup.classList.toggle("hidden");
@@ -178,7 +178,7 @@ class GUI {
 
     const labelEl = document.createElement("label");
     labelEl.setAttribute("for", id);
-    labelEl.innerText = range ? `${label}: ` : label;
+    labelEl.innerHTML = range ? `${label}: ` : label;
     if (title) labelEl.title = title;
 
     let valueSpan = document.createElement("span");
@@ -203,7 +203,7 @@ class GUI {
     labelEl.addEventListener("click", () => {
       range = !range;
       input.type = range ? "range" : "number";
-      labelEl.textContent = range ? `${label}: ` : label;
+      labelEl.innerHTML = range ? `${label}: ` : label;
       if (range) labelEl.appendChild(valueSpan);
       updateValueSpan(input.value);
     })
@@ -228,7 +228,7 @@ class GUI {
 
     const labelEl = document.createElement("label");
     labelEl.setAttribute("for", id);
-    labelEl.innerText = label;
+    labelEl.innerHTML = label;
 
     container.appendChild(input);
     container.appendChild(labelEl);
@@ -255,7 +255,7 @@ class GUI {
 
     const labelEl = document.createElement("label");
     labelEl.setAttribute("for", id);
-    labelEl.innerText = label;
+    labelEl.innerHTML = label;
 
     const select = document.createElement("select");
     select.id = id;
@@ -368,7 +368,7 @@ class GUI {
 
       const labelEl = document.createElement("label");
       labelEl.setAttribute("for", input.id);
-      labelEl.innerText = value;
+      labelEl.innerHTML = value;
 
       container.appendChild(input);
       container.appendChild(labelEl);
@@ -409,7 +409,7 @@ class GUI {
 
     const labelEl = document.createElement("label");
     labelEl.setAttribute("for", id);
-    labelEl.innerText = label;
+    labelEl.innerHTML = label;
 
     container.appendChild(input);
     container.appendChild(labelEl);
@@ -421,6 +421,56 @@ class GUI {
       const file = input.files[0];
       if (file) onChange(file);
     });
+  }
+
+  /**
+   * Adds a canvas element for drawing graphs with 1:1 pixel ratio and legend
+   * @param {String} id id of the canvas
+   * @param {String} label Label displayed above the canvas
+   * @param {Object} legend Object of format `"name": "color"` to display a legend with the specified names and colors
+   * @param {Number} aspectRatio Aspect ratio of the canvas, will be 300px wide and 300/aspectRatio px tall
+   * @param {String} context Rendering context for the canvas, such as "2d" or "webgpu"
+   * @param {String} group Group to which the canvas belongs
+   * @return Canvas rendering context of the specified type for the created canvas
+   */
+  addCanvas(id, label, legend = {}, aspectRatio, context = "webgpu", group = "parent") {
+    const containerDiv = document.createElement("div");
+    containerDiv.classList.add("canvasContainer");
+    containerDiv.id = `${id}-container`;
+
+    const labelEl = document.createElement("b");
+    labelEl.innerHTML = label;
+    labelEl.classList.add("canvasLabel");
+
+    const legendContainer = document.createElement("ul");
+    Object.entries(legend).forEach(([name, color]) => {
+      const legendEntry = document.createElement("li");
+      legendEntry.style.setProperty("--legend-color", color);
+      legendEntry.innerHTML = name;
+      legendContainer.appendChild(legendEntry);
+    });
+
+    const canvas = document.createElement("canvas");
+    canvas.id = id;
+    canvas.classList.add("graph");
+    containerDiv.appendChild(labelEl);
+    containerDiv.appendChild(canvas);
+    containerDiv.appendChild(legendContainer);
+    this.io[id] = canvas;
+    this.groups[group].appendChild(containerDiv);
+
+    function updateCanvasSize() {
+      const pixelRatio = window.devicePixelRatio || 1;
+      const width = 300 * pixelRatio;
+      canvas.width = width;
+      canvas.height = width / aspectRatio;
+      canvas.style.width = "300px";
+      canvas.style.height = `${300 / aspectRatio}px`;
+    }
+    updateCanvasSize();
+    window.addEventListener("resize", updateCanvasSize);
+    
+    return canvas.getContext(context);
   }
 
   /**

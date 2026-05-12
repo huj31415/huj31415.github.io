@@ -83,7 +83,7 @@ class GUI {
 
     const group2 = document.createElement("span");
     group2.className = "halfWidth";
-    group2.id = id1;
+    group2.id = id2;
     this.groups[group].appendChild(group2);
     this.groups[id2] = group2;
   }

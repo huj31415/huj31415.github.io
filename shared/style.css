@@ -114,6 +114,8 @@ span.halfWidth {
   width: 140px;
   overflow: hidden;
   margin-right: 7px;
+  vertical-align: top;
+
   /* margin: 2px; */
   /* border: 1px solid #d8d7d5; */
 }

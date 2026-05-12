@@ -69,7 +69,23 @@ class GUI {
   }
 
   /**
-   * Creates half-width groups under a specified group
+   * Adds a multi-column group to the GUI
+   * @param {String} id id of the group, for adding other IO under it
+   * @param {String} title Title of the group
+   * @param {String} html Plain HTML to add to to the group
+   * @param {Number} cols Number of columns for the group
+   * @param {String} group ID of the group to add this under
+   * @returns The newly created group
+   */
+  addMultiColGroup(id, title, html, cols = 2, group = "parent") {
+    const newGroup = this.addGroup(id, title, html, group);
+    newGroup.style.columnCount = cols;
+    return newGroup;
+  }
+
+  /**
+   * Creates half-width groups under a specified group.
+   * For greater control of layout than addMultiColGroup, but limited to 2 columns.
    * @param {String} id1 id of the left group
    * @param {String} id2 id of the right group
    * @param {String} group id of the group to add this under

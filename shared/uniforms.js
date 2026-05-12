@@ -1,7 +1,7 @@
 // Supports WGSL types f32, vec2f, vec3f, vec4f, mat4x4f.
 
 class Uniforms {
-  constructor() {
+  constructor(name = "Uniforms") {
     this.layout = [];
     this.byteOffset = 0;
     this.byteLength = 0;
@@ -9,6 +9,7 @@ class Uniforms {
     this.uniformData = null;
     this.values = {}; // Named views for direct access
     this.uniformStruct = null;
+    this.name = name;
   }
 
   // Add a new uniform field
@@ -37,7 +38,7 @@ class Uniforms {
     }
 
     // Build WGSL struct
-    const lines = ["struct Uniforms {"];
+    const lines = [`struct ${this.name} {`];
     for (const { name, type, offset, size } of this.layout) {
       lines.push(`  ${name}: ${type},`);
     }

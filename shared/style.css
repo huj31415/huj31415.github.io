@@ -188,9 +188,12 @@ ul {
   padding: 10px;
   padding-left: 25px;
   padding-top: 0;
+  column-gap: 20px;
+
   &>li {
     padding: 0;
     height: 25px;
+
     &::before {
       content: "";
       display: inline-block;

@@ -433,7 +433,7 @@ class GUI {
    * @param {String} group Group to which the canvas belongs
    * @return Canvas rendering context of the specified type for the created canvas
    */
-  addCanvas(id, label, legend = {}, aspectRatio, context = "webgpu", group = "parent") {
+  addCanvas(id, label, legend = {}, legendCols = 2, aspectRatio, context = "webgpu", group = "parent") {
     const containerDiv = document.createElement("div");
     containerDiv.classList.add("canvasContainer");
     containerDiv.id = `${id}-container`;
@@ -443,6 +443,7 @@ class GUI {
     labelEl.classList.add("canvasLabel");
 
     const legendContainer = document.createElement("ul");
+    legendContainer.style.columnCount = legendCols;
     Object.entries(legend).forEach(([name, color]) => {
       const legendEntry = document.createElement("li");
       legendEntry.style.setProperty("--legend-color", color);

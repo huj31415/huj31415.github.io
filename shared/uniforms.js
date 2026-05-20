@@ -10,6 +10,7 @@ class Uniforms {
     this.values = {}; // Named views for direct access
     this.uniformStruct = null;
     this.name = name;
+    this.valuesChanged = false;
   }
 
   // Add a new uniform field
@@ -44,6 +45,7 @@ class Uniforms {
     }
     lines.push("};");
     this.uniformStruct = lines.join("\n");
+    this.valuesChanged = true;
   }
 
   // Set uniform value (array or number)
@@ -56,6 +58,7 @@ class Uniforms {
         ? value
         : new Float32Array(value);
     target.set(source);
+    this.valuesChanged = true;
   }
 
   // Allocate buffer on GPU, overwriting if it already exists, and returns the new buffer
@@ -68,12 +71,16 @@ class Uniforms {
       size: this.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
     });
+    this.valuesChanged = true;
     return this.gpuBuffer;
   }
 
   // Upload to GPU
   update(queue) {
+    const updated = this.valuesChanged;
     queue.writeBuffer(this.gpuBuffer, 0, this.uniformData.buffer, 0, this.byteLength);
+    this.valuesChanged = false;
+    return updated;
   }
 }
 
